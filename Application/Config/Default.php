@@ -11,6 +11,15 @@ $config['phpSettings'] = array(
     'log_errors'      => false,
 );
 
+// Include paths
+$config['includePaths'] = array(
+    realpath(__DIR__ . '/../..'), // Project root
+    realpath(__DIR__ . '/..'),    // Application directory
+);
+
+// Autoloaders
+$config['autoloaders'] = array();
+
 // Database configuration
 $config['database'] = array(
     'dsn'  => 'mysql:dbname=hynage;host=localhost;port=3306',
