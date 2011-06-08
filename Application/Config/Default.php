@@ -22,9 +22,7 @@ $config['autoloaders'] = array();
 
 // Database configuration
 $config['database'] = array(
-    'dsn'  => 'mysql:dbname=hynage;host=localhost;port=3306',
-    'user' => 'usr',
-    'pass' => '',
+    'uri' => 'mysql://usr@localhost:3306/hynage',
 );
 
 // Front controller
