@@ -2,7 +2,7 @@
 namespace HynageExampleApp\Controllers;
 use Hynage\MVC\Controller\Action as Action;
 
-class Index extends Action
+class IndexController extends Action
 {
     public function indexAction()
     {

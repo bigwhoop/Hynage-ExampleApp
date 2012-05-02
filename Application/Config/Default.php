@@ -1,6 +1,9 @@
 <?php
 namespace HynageExampleApp\Config;
-use Hynage\Filter;
+use Hynage\Filter,
+    Hynage\Autoloader;
+
+$capWordsFilter = new Filter\String\CapWords();
 
 $config = array();
 
@@ -18,45 +21,78 @@ $config['includePaths'] = array(
 );
 
 // Autoloaders
-$config['autoloaders'] = array();
+$config['autoloaders'] = array(
+    // new Autoloader\Callback('HynageExampleApp', function($class) {
+    //     $path = str_replace('\\', DIRECTORY_SEPARATOR, $class);
+    //     $path = $path . '.php';
+    //     require_once $path;
+    // }),
+);
 
 // Database configuration
 $config['database'] = array(
     'uri' => 'mysql://usr@localhost:3306/hynage',
+    
+    // $em->findEntity('User', ...) leads to entity type 'App\Models\User'
+    'entityNameFormatter' => function($name) {
+        return 'App\\Models\\' . $name;
+    },
+    
+    // $em->getRepository('User') leads to entity type 'App\Models\Repositories\UserRepository'
+    'repositoryNameFormatter' => function($name) {
+        return 'App\\Models\\Repositories\\' . $name . 'Repository';
+    },
+);
+
+// Session
+$config['session'] = array(
+    'lifetime' => 60 * 30, // 30min
 );
 
 // Front controller
-$capWordsFilter = new Filter\String\CapWords();
 $config['frontController'] = array(
     'formatters' => array(
+        // Rewrites 'about-us' to '\HynageExampleApp\Controllers\AboutUsController'
         'controllerName' => function($class) use ($capWordsFilter) {
-            return '\\HynageExampleApp\\Controllers\\' . $capWordsFilter->filter($class);
+            return '\\HynageExampleApp\\Controllers\\' . $capWordsFilter->filter($class) . 'Controller';
         },
+        
+        // Rewrites 'about-us' to '<PROJECT>/Application/Controllers/AboutUs.php'
         'controllerPath' => function($class) use ($capWordsFilter) {
-            return realpath(__DIR__ . '/../Controllers/' . $capWordsFilter->filter($class) . '.php');
+            return (__DIR__ . '/../Controllers/' . $capWordsFilter->filter($class) . '.php');
         },
-        'actionName' => array('\\Hynage\\Filter\\MVC\\DefaultActionName', 'filter'),
+        
+        // 'requestPath' is a callable that takes an URI path and returns and URI path
+        'requestPath' => require __DIR__ . '/Routes.php',
+        
+        // Rewrites 'about-us' to 'aboutUsAction'
+        'actionName'  => array(new Filter\MVC\DefaultActionName(), 'filter'),
     ),
     'defaults'  => array(
         'controller' => 'index',
         'action'     => 'index',
     ),
+    'errors'  => array(
+        'controller' => 'errors',
+        'action'     => 'error',
+    ),
 );
 
-// View
+// Views
 $config['view'] = array(
     'basePath' => realpath(__DIR__ . '/../Views'),
 );
 
-// Layout
+// Layouts
 $config['layout'] = array(
     'basePath' => realpath(__DIR__ . '/../Layouts'),
-    'layout'   => 'Default.phtml',
+    'layout'   => 'Website.phtml',
+    'params'   => array(),
 );
 
 // Security
 $config['security'] = array(
-    'secretkey' => 'mysupersecretkey',
+    'secretkey' => 'supersecretkey',
 );
 
 return $config;
